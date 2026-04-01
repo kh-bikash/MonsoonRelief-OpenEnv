@@ -1,0 +1,14 @@
+name: monsoon-relief-openenv
+version: "1.0.0"
+description: "A real-world RL environment where an AI acts as a disaster-response operations officer during a monsoon flood emergency."
+author: "AI Engineer"
+tasks:
+  - id: task_1_easy
+    name: "Rank Zones by Urgency"
+    difficulty: "Easy"
+  - id: task_2_medium
+    name: "Allocate Resources Optimally"
+    difficulty: "Medium"
+  - id: task_3_hard
+    name: "Full Response Strategy"
+    difficulty: "Hard"

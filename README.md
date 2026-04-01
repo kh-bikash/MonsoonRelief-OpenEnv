@@ -1,4 +1,12 @@
-
+---
+title: Monsoon Relief OpenEnv
+emoji: 🌧️
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+app_port: 7860
+---
 <div align="center">
   <h1>🌧️🚁 Monsoon Relief Dispatch OpenEnv</h1>
   <p><i>A real-world, high-stakes reinforcement learning environment where an AI acts as a disaster-response operations officer.</i></p>
@@ -73,6 +81,20 @@ python inference.py
 - 🔴 **Hard**: `1.00 / 1.00`
 
 *(Total Aggregate: **3.00 / 3.00**)*
+
+## 🐳 Local Docker Execution
+The environment includes a working `Dockerfile` built on the modern `uv` Python manager. You can spin up the environment's API server locally:
+
+**1. Build the Docker Image:**
+```bash
+docker build -t monsoon-env .
+```
+
+**2. Run the Container:**
+```bash
+docker run -p 7860:7860 environment-env
+```
+_The OpenEnv API will now be accessible at `http://localhost:7860`._
 
 ---
 

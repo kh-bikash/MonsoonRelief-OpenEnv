@@ -37,8 +37,16 @@ def main():
         Output a valid JSON matching this schema for your actions:
         {Action.model_json_schema()}
         """
+        task_name = t['name']
+        print(f"[START] task={task_name} env=MonsoonRelief model={model_name}")
         
-        print(f"--- Running Task: {t['name']} ---")
+        step_idx = 1
+        reward = 0.00
+        error_str = "null"
+        done_str = "true"
+        success_str = "false"
+        action_str = "noop()"
+        
         try:
             response = client.chat.completions.create(
                 model=model_name,
@@ -48,12 +56,16 @@ def main():
             )
             raw_output = response.choices[0].message.content
             action = Action.model_validate_json(raw_output)
+            action_str = "submit_action()"
             
-            score = t["grader"](action, t["state"])
-            print(f"Action parsed successfully.")
-            print(f"Score for {t['name']} task: {score:.2f} / 1.00\n")
+            reward = t["grader"](action, t["state"])
+            success_str = "true" if reward > 0 else "false"
+            
         except Exception as e:
-            print(f"Failed on task {t['name']}. Error: {str(e)}\n")
+            error_str = str(e).replace('\n', ' ')
+            
+        print(f"[STEP] step={step_idx} action={action_str} reward={reward:.2f} done={done_str} error={error_str}")
+        print(f"[END] success={success_str} steps={step_idx} rewards={reward:.2f}")
 
 if __name__ == "__main__":
     main()

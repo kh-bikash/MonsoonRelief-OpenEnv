@@ -1,12 +1,4 @@
----
-title: Monsoon Relief OpenEnv
-emoji: 🌧️
-colorFrom: blue
-colorTo: indigo
-sdk: docker
-pinned: false
-app_port: 7860
----
+
 <div align="center">
   <h1>🌧️🚁 Monsoon Relief Dispatch OpenEnv</h1>
   <p><i>A real-world, high-stakes reinforcement learning environment where an AI acts as a disaster-response operations officer.</i></p>

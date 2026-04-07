@@ -7,8 +7,9 @@ ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
 
 # Install dependencies optimally with uv
-COPY pyproject.toml uv.lock ./
+COPY pyproject.toml uv.lock requirements.txt ./
 RUN uv sync --frozen --no-install-project --no-dev
+RUN uv pip install --system -r requirements.txt
 
 # Copy the actual project code
 COPY . .

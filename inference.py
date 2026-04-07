@@ -2,13 +2,29 @@ import os
 import sys
 import json
 import traceback
+import subprocess
 
 # 1. Force the current directory into the PYTHONPATH for robust local module discovery
 script_dir = os.path.dirname(os.path.abspath(__file__))
 if script_dir not in sys.path:
     sys.path.insert(0, script_dir)
 
-# 2. Robust Pydantic Compatibility Helpers
+# 2. Self-Healing: Attempt to install missing dependencies if environment fails to pre-install
+def _ensure_dependencies():
+    """Checks for core dependencies and attempts to install them if missing."""
+    try:
+        import openai
+        import pydantic
+    except ImportError:
+        print("[DEBUG] Core dependency missing. Attempting emergency pip install...")
+        try:
+            # Using -m pip ensures we use the same Python interpreter currently running
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "openai", "pydantic", "python-dotenv"])
+            print("[DEBUG] Auto-install successful.")
+        except Exception as e:
+            print(f"[DEBUG] Auto-install failed (likely no internet): {e}")
+
+# 3. Robust Pydantic Compatibility Helpers
 def get_state_dict(state):
     """Pydantic V1/V2 compatibility for converting model to dict."""
     if hasattr(state, "model_dump"):
@@ -29,7 +45,10 @@ def get_schema_json(model_class):
     return "{}"
 
 def run_evaluation():
-    # 3. Protected Imports to catch Syntax/Module errors
+    # 4. Final safety check on dependencies before logic starts
+    _ensure_dependencies()
+
+    # 5. Protected Imports to catch Syntax/Module errors
     try:
         from openai import OpenAI
         from app.tasks import get_task_1_state, get_task_2_state, get_task_3_state
@@ -40,8 +59,7 @@ def run_evaluation():
         traceback.print_exc()
         sys.exit(1)
 
-    # 4. Mandatory Environment Configuration
-    # Defaults allowed ONLY for URL and Model
+    # 6. Mandatory Environment Configuration
     api_base_url = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
     model_name = os.getenv("MODEL_NAME", "meta-llama/Llama-3.3-70B-Instruct")
     hf_token = os.getenv("HF_TOKEN") or os.getenv("OPENAI_API_KEY")
@@ -57,7 +75,7 @@ def run_evaluation():
         traceback.print_exc()
         sys.exit(1)
 
-    # 5. Task Definitions
+    # 7. Task Definitions
     try:
         tasks_def = [
             {"name": "Easy", "state": get_task_1_state(), "grader": grade_task_1_easy},
@@ -69,10 +87,9 @@ def run_evaluation():
         traceback.print_exc()
         sys.exit(1)
 
-    # 6. Evaluation Loop
+    # 8. Evaluation Loop
     for t in tasks_def:
         task_name = t['name']
-        # LOG REQUIREMENT: [START] task=<name> env=<id> model=<name>
         print(f"[START] task={task_name} env=monsoon-relief-openenv model={model_name}")
 
         step_idx = 1
@@ -84,7 +101,7 @@ def run_evaluation():
         rewards_list = "0.00"
 
         try:
-            # 6.1 State Aggregation & Transformation
+            # 8.1 State Aggregation & Transformation
             state_dict = get_state_dict(t["state"])
             zones_data = state_dict.get("zones", [])
             for i, z in enumerate(t["state"].zones):
@@ -107,7 +124,7 @@ def run_evaluation():
             {schema_json}
             """
 
-            # 6.2 Inference API Call
+            # 8.2 Inference API Call
             response = client.chat.completions.create(
                 model=model_name,
                 messages=[{"role": "user", "content": prompt}],
@@ -120,9 +137,8 @@ def run_evaluation():
             if not raw_output:
                 raise ValueError("Model returned an empty completion.")
 
-            # 6.3 Validation and Scoring
+            # 8.3 Validation and Scoring
             try:
-                # Pydantic parsing with V1/V2 backward compatibility
                 if hasattr(Action, "model_validate_json"):
                     action = Action.model_validate_json(raw_output)
                 elif hasattr(Action, "parse_raw"):
@@ -145,25 +161,19 @@ def run_evaluation():
             error_str = f"Task Execution Error: {clean_eval_err}"
             action_str = "runtime_failure()"
 
-        # LOG REQUIREMENT: [STEP] step=<n> action=<str> reward=<float> done=<bool> error=<msg|null>
         print(f"[STEP] step={step_idx} action={action_str} reward={reward:.2f} done={done_str} error={error_str}")
-        # LOG REQUIREMENT: [END] success=<bool> steps=<n> score=<float> rewards=<csv_list>
         print(f"[END] success={success_str} steps={step_idx} score={reward:.2f} rewards={rewards_list}")
 
 if __name__ == "__main__":
-    # 7. Global Fortress Wrapper
     try:
         run_evaluation()
     except Exception as fatal_e:
-        # If anything leaked through, catch it here and dump the details
         print(f"CRITICAL FATAL EXCEPTION: {fatal_e}")
         traceback.print_exc()
         sys.exit(1)
     except SystemExit:
-        # Preserve exit codes from sys.exit()
         raise
     except BaseException as be:
-        # Catch even things like KeyboardInterrupt but not recommended to mask
         print(f"CRITICAL SYSTEM FAILURE: {be}")
         traceback.print_exc()
         sys.exit(1)

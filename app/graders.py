@@ -33,10 +33,12 @@ def grade_task_2_medium(action: Action, initial_state: State) -> float:
         return 0.0
         
     for zid, alloc in allocations.items():
-        if alloc.ambulances > 0 and zones[zid].medical_emergencies > 0:
-            score += 0.4
-        if alloc.boats > 0 and zones[zid].water_level_m >= 2.0:
-            score += 0.3 
+        target_zone = zones.get(zid)
+        if target_zone:
+            if alloc.ambulances > 0 and target_zone.medical_emergencies > 0:
+                score += 0.4
+            if alloc.boats > 0 and target_zone.water_level_m >= 2.0:
+                score += 0.3 
             
     return min(1.0, score)
 

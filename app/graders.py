@@ -1,9 +1,13 @@
 from app.models import State, Action
 from typing import List
 
+def _clamp_score(score: float) -> float:
+    """Ensures score is strictly within (0, 1) range as required by validator."""
+    return max(0.01, min(0.99, round(score, 2)))
+
 def grade_task_1_easy(action: Action, initial_state: State) -> float:
     if not action.prioritized_zones:
-        return 0.0
+        return _clamp_score(0.0)
     
     zones_sorted = sorted(initial_state.zones, key=lambda z: z.urgency_score, reverse=True)
     truth_ids = [z.zone_id for z in zones_sorted]
@@ -17,20 +21,21 @@ def grade_task_1_easy(action: Action, initial_state: State) -> float:
             distance = abs(true_idx - i)
             score += max(0, 1.0 - (distance / max_score))
             
-    return round(score / max_score, 2) if truth_ids else 0.0
+    final_score = score / max_score if truth_ids else 0.0
+    return _clamp_score(final_score)
 
 def grade_task_2_medium(action: Action, initial_state: State) -> float:
     score = 0.0
     allocations = action.resource_allocations
     if not allocations:
-        return 0.0
+        return _clamp_score(0.0)
         
     zones = {z.zone_id: z for z in initial_state.zones}
     total_boats_allocated = sum(a.boats for a in allocations.values())
     total_amb_allocated = sum(a.ambulances for a in allocations.values())
     
     if total_boats_allocated > initial_state.unallocated_resources.boats:
-        return 0.0
+        return _clamp_score(0.0)
         
     for zid, alloc in allocations.items():
         target_zone = zones.get(zid)
@@ -40,7 +45,7 @@ def grade_task_2_medium(action: Action, initial_state: State) -> float:
             if alloc.boats > 0 and target_zone.water_level_m >= 2.0:
                 score += 0.3 
             
-    return min(1.0, score)
+    return _clamp_score(min(1.0, score))
 
 def grade_task_3_hard(action: Action, initial_state: State) -> float:
     score = 0.0
@@ -59,4 +64,4 @@ def grade_task_3_hard(action: Action, initial_state: State) -> float:
     found = sum(1 for kw in keywords if kw in plan)
     score += min(0.4, found * 0.1)
     
-    return min(1.0, round(score, 2))
+    return _clamp_score(min(1.0, score))

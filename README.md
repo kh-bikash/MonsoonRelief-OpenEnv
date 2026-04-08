@@ -75,12 +75,12 @@ python inference.py
 ```
 
 ### 🏆 Baseline Scores
-*Zero-shot baseline benchmark utilizing `Llama-3.3-70B-Instruct` locally:*
-- 🟢 **Easy**: `1.00 / 1.00`
-- 🟡 **Medium**: `1.00 / 1.00`
-- 🔴 **Hard**: `1.00 / 1.00`
+*Zero-shot baseline benchmark (LLM scores are capped at 0.99 per strict Round 1 validator requirements):*
+- 🟢 **Easy**: `0.99 / 1.00`
+- 🟡 **Medium**: `0.99 / 1.00`
+- 🔴 **Hard**: `0.99 / 1.00`
 
-*(Total Aggregate: **3.00 / 3.00**)*
+*(Total Aggregate: **2.97 / 3.00**)*
 
 ## 🐳 Local Docker Execution
 The environment includes a working `Dockerfile` built on the modern `uv` Python manager. You can spin up the environment's API server locally:

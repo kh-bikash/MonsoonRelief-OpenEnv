@@ -112,13 +112,11 @@ def run_evaluation():
             schema_json = get_schema_json(Action)
 
             prompt = f"""
-            You are a disaster response AI officer. Current state:
+            You are a disaster response operations officer. Current state:
             {state_json}
             
-            CRITICAL INSTRUCTIONS TO FULLY COMPLETE THE TASKS:
-            1. Easy Task: Return `prioritized_zones` perfectly sorted by `urgency_score` (highest to lowest).
-            2. Medium Task: In `resource_allocations`, you MUST allocate ambulances to EVERY zone where `medical_emergencies` > 0, and you MUST allocate boats to EVERY zone where `water_level_m` >= 2.0. 
-            3. Hard Task: You MUST write a detailed text narrative in the `plan` field that explicitly uses EVERY single one of these exact keywords: "evacuate", "priority", "medical", "shelter", "boat", "ambulance". Also, be sure to open at least one shelter, order at least one evacuation, and allocate resources.
+            Based on the above constraints, please generate your response strategy. 
+            Make sure to effectively prioritize zones, appropriately allocate the scarce resources (boats, trucks, ambulances), and formulate a detailed step-by-step written plan. Do not exceed our available unallocated resources.
             
             Output a valid JSON matching this schema for your actions:
             {schema_json}

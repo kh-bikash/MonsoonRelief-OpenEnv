@@ -105,12 +105,3 @@ Ready for multi-mode execution:
 3. The Space will automatically spin up the integrated API Server using `uvicorn` mapped through `uv.lock`.
 
 ---
-
-## ✅ Pre-Submission Checklist Compliance
-This project strictly adheres to the OpenEnv Hackathon Round 1 requirements:
-- **Real-World Task:** Simulates life-critical disaster relief (not a toy/game).
-- **OpenEnv Spec Compliance:** Features a fully compliant `openenv.yaml`, strict Pydantic typed models, and endpoints for `step()`, `reset()`, and `state()`.
-- **Automated Validation Graders:** 3 complete tasks (Easy, Medium, Hard) strictly scoring `0.0` to `1.0`.
-- **Reward Logic:** Granular partial progress rewards defined via realistic outcomes.
-- **Docker Support:** Fully isolated, reproducible container build provided.
-- **Standardized Inference Logic:** The `inference.py` script resides in the root directory, executes using the standard OpenAI client, adheres perfectly to the `API_BASE_URL`, `MODEL_NAME`, and `HF_TOKEN` environment variables setup, and emits strictly formatted `[START]`, `[STEP]`, and `[END]` evaluation stdout logs as mandated.
